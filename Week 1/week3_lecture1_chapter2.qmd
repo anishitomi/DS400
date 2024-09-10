@@ -54,7 +54,7 @@ ggplot(data = fake_news, aes(x = type, fill = title_has_excl)) +
   
 ```
 
-###  The Whole Game
+### The Whole Game
 
 ![](images/clipboard-2218401115.png){width="387"}
 
@@ -169,9 +169,8 @@ data(pop_vs_soda)
 
     -   P(S)
 
-```{=html}
 <!-- -->
-```
+
 -   Letting N denote the person is from the northeast
 
     -   P(N)
@@ -191,6 +190,8 @@ data(pop_vs_soda)
     -   Letting A denote the event that a person uses the word "pop,"
 
 3\) Build a posterior probability model determining the probability that the person is from the south based on using the word "pop": P(S\|A)\
+
+Attempt at Challenge
 
 ```{r}
 # Prior Probabillity person is from the South region
@@ -217,14 +218,66 @@ prior_probability_someone_says_pop <- .37
 ```{r}
 # Liklihood someone from south says pop
 pop_vs_soda %>% 
-  tabyl(region, pop) %>% 
+  tabyl(pop, region) %>% 
   adorn_percentages("col") 
 ```
 
 ```{r}
-likelihood_somone_from_south_says_pop <- .05
+likelihood_somone_from_south_says_pop <- 0.07922231
 ```
 
 ```{r}
 (prior_probability_someone_from_south * likelihood_somone_from_south_says_pop) / prior_probability_someone_says_pop
+```
+
+# Exploratory Analysis
+
+```{r}
+ggplot(data = pop_vs_soda, aes(x = region , fill = pop)) + 
+  geom_bar()
+```
+
+Census Data of where people are from
+
+```{r}
+prior <- c(midwest = 0.21,
+           northeast = 0.17,
+           south = 0.38,
+           west = 0.24)
+
+prior
+```
+
+2\) Regional Likelihoods
+
+```{r}
+# Liklihood someone says pop
+pop_vs_soda %>% 
+  tabyl(pop, region) %>% 
+  adorn_percentages("col") 
+```
+
+```{r}
+likelihoods <- pop_vs_soda %>% 
+  tabyl(pop, region) %>% 
+  adorn_percentages("col") %>% 
+  filter(pop == "TRUE") %>% 
+  select(-pop) %>% 
+  unlist()
+
+likelihoods
+```
+
+3\) Marginal prior probability that a person uses the word pop
+
+```{r}
+prior_probabillity_says_pop <- sum(prior * likelihoods)
+
+prior_probabillity_says_pop
+```
+
+4\) Finding our posterior probability P(S\|A)
+
+```{r}
+(prior[3] * likelihoods[3]) / prior_probabillity_says_pop
 ```
