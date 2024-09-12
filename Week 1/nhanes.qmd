@@ -83,12 +83,61 @@ df <- df %>%
 ```
 
 2.  Do some exploratory data analysis
+
+```{r}
+ggplot(data = df, aes(x = DRD360)) + 
+  geom_bar() + 
+  facet_grid(~DRD370B) +
+  labs(title = "Fish Eaten in the Past 30 Days", x = "Fish Eaten" , y = "Count")
+
+
+```
+
+2.  
 3.  Determine the prior probability that someone has diabetes (DIQ010)
     -   P(B)
-4.  Determine the prior probability that someone eats tuna (DRD370B)
+
+```{r}
+# Prior Probabillity person has diabetes
+df %>% 
+  tabyl(DIQ010) %>% # gets the number of types in a particular column
+  adorn_totals("row") # adds totals by row
+```
+
+```{r}
+prior_probabillity_someone_has_diabetes = 0.1287574
+```
+
+2.  Determine the prior probability that someone eats tuna (DRD370B)
     -   P(A)
-5.  Determine the likelihood of eating tuna and having diabetes
+
+```{r}
+# Prior Probabillity person eats tuna
+df %>% 
+  tabyl(DRD370B) %>% # gets the number of types in a particular column
+  adorn_totals("row") # adds totals by row
+
+prior_probabillity_someone_eats_tuna = 0.3609467
+```
+
+2.  Determine the likelihood of eating tuna and having diabetes
     -   L(B\|A)
-6.  Determine posterior probability via bayes theorem
+
+```{r}
+ df %>% 
+   tabyl(DRD370B,DIQ010 ) %>% 
+   adorn_percentages("col")
+ 
+liklihood_someone_eats_tuna_has_diabetes = 0.3584559
+```
+
+2.  Determine posterior probability via bayes theorem
     -   P(B\|A)
-7.  What other questions can we ask of this data?
+
+```{r}
+(prior_probabillity_someone_has_diabetes * liklihood_someone_eats_tuna_has_diabetes_part_2) / prior_probabillity_someone_eats_tuna
+```
+
+2.  What other questions can we ask of this data?
+
+We can ask if someone has diabetes if they eat swordfish. We can also do if they don't eat tuna or swordfish.
