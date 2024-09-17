@@ -76,8 +76,8 @@ df <- df %>%
   filter(DIQ010 %in% c(1, 2), DRD370B %in% c(1, 2)) %>%
   # Recode 1 to "Yes" and 2 to "No" for DIQ010 and DRD360
   mutate(
-    DIQ010 = ifelse(DIQ010 == 1, "Yes", "No"),
-    DRD370B = ifelse(DRD370B == 1, "Yes", "No")
+    DIQ010 = ifelse(DIQ010 == 1, "Has Diabetes", "No Diabetes"),
+    DRD370B = ifelse(DRD370B == 1, "Consumes Ahi", "No Ahi!")
   )
   
 ```
@@ -89,19 +89,22 @@ ggplot(data = df, aes(x = DRD360)) +
   geom_bar() + 
   facet_grid(~DRD370B) +
   labs(title = "Fish Eaten in the Past 30 Days", x = "Fish Eaten" , y = "Count")
-
-
 ```
 
-2.  
-3.  Determine the prior probability that someone has diabetes (DIQ010)
+## Bayes Theorem - P(B\|A)
+
+B \<- Has Diabetes
+
+A \<- Consumes Ahi
+
+2.  Determine the prior probability that someone has diabetes (DIQ010)
+
     -   P(B)
 
 ```{r}
 # Prior Probabillity person has diabetes
 df %>% 
-  tabyl(DIQ010) %>% # gets the number of types in a particular column
-  adorn_totals("row") # adds totals by row
+  tabyl(DIQ010) 
 ```
 
 ```{r}
@@ -114,14 +117,14 @@ prior_probabillity_someone_has_diabetes = 0.1287574
 ```{r}
 # Prior Probabillity person eats tuna
 df %>% 
-  tabyl(DRD370B) %>% # gets the number of types in a particular column
-  adorn_totals("row") # adds totals by row
+  tabyl(DRD370B) # gets the number of types in a particular column
+
 
 prior_probabillity_someone_eats_tuna = 0.3609467
 ```
 
 2.  Determine the likelihood of eating tuna and having diabetes
-    -   L(B\|A)
+    -   L(B\|A) = P(B\|A)
 
 ```{r}
  df %>% 
@@ -135,9 +138,106 @@ liklihood_someone_eats_tuna_has_diabetes = 0.3584559
     -   P(B\|A)
 
 ```{r}
-(prior_probabillity_someone_has_diabetes * liklihood_someone_eats_tuna_has_diabetes_part_2) / prior_probabillity_someone_eats_tuna
+(prior_probabillity_someone_has_diabetes * liklihood_someone_eats_tuna_has_diabetes) / prior_probabillity_someone_eats_tuna
 ```
 
 2.  What other questions can we ask of this data?
 
 We can ask if someone has diabetes if they eat swordfish. We can also do if they don't eat tuna or swordfish.
+
+#### Shorter Method for Bayes Theorem
+
+P(A\|B)
+
+```{r}
+df %>% 
+  tabyl(DIQ010, DRD370B) %>% 
+  adorn_percentages("col")
+```
+
+.13 would be our posterior probabillity
+
+#### Diabetes & Age
+
+Selecting Columns from demographics column
+
+```{r}
+demographics <- demographics %>% 
+  select(SEQN, RIDRETH1, RIAGENDR, RIDAGEYR)
+```
+
+Joining 2 data frames (df and demographics) together by "SEQN" Column
+
+```{r}
+nhanes_data <- left_join(df, demographics, by = "SEQN")
+```
+
+Creating a new column "Age Bracket"
+
+```{r}
+nhanes_data <- nhanes_data %>% 
+  mutate(age_bracket = ifelse(RIDAGEYR > 40,"Over 40", "Under 40"))
+```
+
+#### Density Plot
+
+```{r}
+ggplot(nhanes_data, aes(x = RIDAGEYR, fill = DIQ010)) +
+  geom_density(alpha = 0.5) +
+  labs(title = "Has Diabetes based on Age", x = "Age", y = "Density")
+```
+
+P(B\|A)
+
+B \<- has diabetes
+
+A \<- Age over 40
+
+P(B)
+
+```{r}
+nhanes_data %>% 
+  tabyl(DIQ010)
+```
+
+```{r}
+prior_probabillity_has_diabetes_nhanes <- 0.1287574
+```
+
+-   L(B\|A) = P(B\|A)
+
+```{r}
+nhanes_data %>%
+  tabyl(age_bracket, DIQ010) %>% 
+  adorn_percentages("col")
+  
+```
+
+```{r}
+likelhood_someone_has_diabetes_over_40 <- 0.95588235
+```
+
+P(A)
+
+```{r}
+nhanes_data %>%
+  tabyl(age_bracket)
+```
+
+```{r}
+prior_probability_someone_is_over_40 <- 0.5342012
+```
+
+Finding the posterior probability
+
+```{r}
+(prior_probabillity_has_diabetes_nhanes * likelhood_someone_has_diabetes_over_40) / prior_probability_someone_is_over_40
+```
+
+Short Methods for Bayes Theorem P(B\|A)
+
+```{r}
+nhanes_data %>% 
+  tabyl(DIQ010, age_bracket) %>% 
+  adorn_percentages("col")
+```
