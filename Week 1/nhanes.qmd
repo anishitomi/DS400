@@ -187,7 +187,7 @@ ggplot(nhanes_data, aes(x = RIDAGEYR, fill = DIQ010)) +
   labs(title = "Has Diabetes based on Age", x = "Age", y = "Density")
 ```
 
-P(B\|A)
+P(B\|A) Finding the probability that someone has diabetes given their age is over 40
 
 B \<- has diabetes
 
