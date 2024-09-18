@@ -234,7 +234,7 @@ Finding the posterior probability
 (prior_probabillity_has_diabetes_nhanes * likelhood_someone_has_diabetes_over_40) / prior_probability_someone_is_over_40
 ```
 
-Short Methods for Bayes Theorem P(B\|A)
+Shorter Methods for Bayes Theorem P(B\|A)
 
 ```{r}
 nhanes_data %>% 
